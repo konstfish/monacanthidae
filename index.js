@@ -16,8 +16,6 @@ if(process.env.IN_DOCKER_CONTAINER){
 }
 
 async function minFile(file, srcdir, id, cid){
-  //console.log(file);
-
   var b64;
   var dimensions = sizeOf(srcdir + '/' + file);
   if(dimensions.orientation == 8){
@@ -48,6 +46,12 @@ const getFileUpdatedDate = (path) => {
 
 function isImage(lmnt) {
   if(lmnt.toLowerCase().endsWith('.jpg')){
+    return lmnt
+  }
+}
+
+function isFolder(lmnt) {
+  if(fs.lstatSync(rootdir + lmnt).isDirectory()){
     return lmnt
   }
 }
@@ -96,6 +100,20 @@ io.on('connection', function(client){
 
       io.to(client.id).emit('imgdone', id)
 
+    });
+  });
+  client.on('linkrequest', function(data) {
+    fs.readdir(rootdir, function (err, files) {
+      if (err) {
+          return console.log('Unable to scan directory: ' + err);
+      }
+
+      files = files.filter(isFolder);
+      files.sort()
+
+      files.forEach(function(file){
+        io.to(client.id).emit('newlink', file)
+      });
     });
   });
 });
