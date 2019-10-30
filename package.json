@@ -1,0 +1,22 @@
+{
+  "name": "konstfile",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "image-size": "^0.8.3",
+    "imagemin": "^7.0.0",
+    "imagemin-mozjpeg": "^8.0.0",
+    "sharp": "^0.23.2",
+    "socket.io": "^2.3.0"
+  },
+  "devDependencies": {}
+}
