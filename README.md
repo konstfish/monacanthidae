@@ -7,5 +7,5 @@ run `npm i & npm start`
 docker
 ```
 docker build -t monacanthidae .
-docker run -v /path/to/pictures:/data -p 3000:3000 konstfile
+docker run -v /path/to/pictures:/data -p 3000:3000 monacanthidae
 ```
