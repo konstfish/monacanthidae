@@ -1,14 +1,14 @@
 {
-  "name": "konstfile",
-  "version": "1.0.0",
-  "description": "",
+  "name": "monacanthidae",
+  "version": "0.0.1",
+  "description": "tmp",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon index.js",
     "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "konstfish",
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
