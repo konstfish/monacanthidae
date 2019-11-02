@@ -27,6 +27,8 @@ async function minFile(file, srcdir, id, cid){
   }
 
   var upd = getFileUpdatedDate(srcdir + '/' + file).toISOString().replace(/T/, ' ').replace(/\..+/, '')
+  var cr2 = pathExists(srcdir + '/' + file.split('.').slice(0, -1).join('.') + '.CR2')
+  console.log("cr2:" + cr2)
 
   await sharp(srcdir + '/' + file)
   .resize(900)
@@ -36,7 +38,7 @@ async function minFile(file, srcdir, id, cid){
   .catch( err => { console.log(err) });
 
 
-  io.to(cid).emit('newImg', { data: b64, name: file, id: id, height: height, width: width, orientation: dimensions.orientation, updated: upd });
+  io.to(cid).emit('newImg', { data: b64, name: file, id: id, height: height, width: width, orientation: dimensions.orientation, updated: upd, cr2: cr2 });
 }
 
 const getFileUpdatedDate = (path) => {
@@ -53,6 +55,18 @@ function isImage(lmnt) {
 function isFolder(lmnt) {
   if(fs.lstatSync(rootdir + lmnt).isDirectory()){
     return lmnt
+  }
+}
+
+function pathExists(path){
+  try {
+  if (fs.existsSync(path)) {
+    return 1
+  }else{
+    return 0
+  }
+  } catch(err) {
+    return 0
   }
 }
 

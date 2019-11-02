@@ -61,6 +61,17 @@ socket.on('newImg', function(message) {
   prop.appendChild(sp1)
   prop.appendChild(sp2)
   prop.appendChild(sp3)
+
+  if(message.cr2){
+    console.log("crw2")
+    var sp4 = document.createElement("span");
+    var cr2l = document.createElement("a");
+    cr2l.innerHTML = "CR2 DL"
+    cr2l.setAttribute("href", ("/data/" + window.location.pathname.split('/')[window.location.pathname.split('/').length - 1] + "/" + message.name.split('.').slice(0, -1).join('.') + '.CR2'))
+    sp4.appendChild(cr2l)
+    prop.appendChild(sp4)
+  }
+
   dv.appendChild(prop)
 
   var cnt = document.getElementById("img-container");
