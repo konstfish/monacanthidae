@@ -1,0 +1,25 @@
+@layout('layouts.app')
+
+@section('content')
+  <div class="link-container">
+    @each(album in albums)
+      <div class="post-preview">
+        <h3 class="post-title">
+          {{ album.name }}
+        </h3>
+        <a href="l?folder={{ album.path }}">
+          {{ album.path }}
+        </a>
+      </div>
+    @endeach
+  </div>
+
+  <style>
+    h3{
+      padding: 0px;
+      margin: 2px;
+      margin-top: 12px;
+    }
+  </style>
+
+@endsection

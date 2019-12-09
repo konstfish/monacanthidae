@@ -1,12 +1,28 @@
-var app = require('express')();
-var http = require('http').createServer(app);
-var io = require('socket.io')(http);
+const express = require('express');
+const { config, engine } = require('express-edge');
+const bodyParser = require('body-parser');
 const path = require('path');
 const fs = require('fs');
-const imagemin = require('imagemin');
-const imageminMozjpeg = require('imagemin-mozjpeg');
+const dirTree = require('directory-tree');
 const sharp = require('sharp');
-const sizeOf = require('image-size');
+var ExifImage = require('exif').ExifImage;
+const app = new express();
+
+app.use(express.static('public'));
+app.use(engine);
+app.set('views', __dirname + '/views');
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
+
+app.set('json spaces', 2);
+
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
 
 const update_interval = 12;
 if(process.env.IN_DOCKER_CONTAINER){
@@ -15,30 +31,102 @@ if(process.env.IN_DOCKER_CONTAINER){
   var rootdir = path.join(__dirname + '/data/')
 }
 
-async function minFile(file, srcdir, id, cid){
-  var b64;
-  var dimensions = sizeOf(srcdir + '/' + file);
-  if(dimensions.orientation == 8){
-    var width = dimensions.height
-    var height = dimensions.width
-  }else{
-    var height = dimensions.height
-    var width = dimensions.width
-  }
+async function minFileAs(file, srcdir){
+  var dic = {};
+  dic["file"] = file
 
-  var upd = getFileUpdatedDate(srcdir + '/' + file).toISOString().replace(/T/, ' ').replace(/\..+/, '')
-  var cr2 = pathExists(srcdir + '/' + file.split('.').slice(0, -1).join('.') + '.CR2')
-  console.log("cr2:" + cr2)
+  // new ExifImage({ image : srcdir + '/' + file}, function (error, exifData) {
+  // if (error)
+  //   console.log('Error: '+error.message);
+  // else
+  //   console.log(exifData);
+  //   dic["camera"] = exifData["image"]["Model"]
+  //   dic["manu"] = exifData["image"]["Make"]
+  //   dic["lens"] = exifData["exif"]["LensModel"]
+  //   dic["orientatio1n"] = exifData["image"]["Orientation"]
+  //   if(dic["orientation"] == 8){
+  //     dic["width"] = exifData["exif"]["ExifImageHeight"]
+  //     dic["heigth"] = exifData["exif"]["ExifImageWidth"]
+  //   }else{
+  //     dic["width"] = exifData["exif"]["ExifImageWidth"]
+  //     dic["heigth"] = exifData["exif"]["ExifImageHeight"]
+  //   }
+  //   dic["iso"] = exifData["exif"]["ISO"]
+  //   dic["exp_time"] = exifData["exif"]["ExposureTime"]
+  //   console.log(dic)
+  // });
 
+  dic["upd"] = getFileUpdatedDate(srcdir + '/' + file).toISOString().replace(/T/, ' ').replace(/\..+/, '')
+  dic["cr2"] = pathExists(srcdir + '/' + file.split('.').slice(0, -1).join('.') + '.CR2')
+
+  // await sharp(srcdir + '/' + file)
+  // .resize(size)
+  // .rotate()
+  // .toBuffer()
+  // .then( data => { dic["b64"] = data.toString('base64') })
+  // .catch( err => { console.log(err) });
+
+  return dic;
+}
+
+function getExifData(f){
+  var dic = {};
+  new ExifImage({ image : f}, function (error, exifData) {
+  if (error)
+    console.log('Error: '+error.message);
+  else
+    dic["camera"] = exifData["image"]["Model"]
+    dic["manu"] = exifData["image"]["Make"]
+    dic["lens"] = exifData["exif"]["LensModel"]
+    dic["orientatio1n"] = exifData["image"]["Orientation"]
+    if(dic["orientation"] == 8){
+      dic["width"] = exifData["exif"]["ExifImageHeight"]
+      dic["heigth"] = exifData["exif"]["ExifImageWidth"]
+    }else{
+      dic["width"] = exifData["exif"]["ExifImageWidth"]
+      dic["heigth"] = exifData["exif"]["ExifImageHeight"]
+    }
+    dic["iso"] = exifData["exif"]["ISO"]
+    dic["exp_time"] = exifData["exif"]["ExposureTime"]
+  });
+  return dic
+}
+
+function minFile(file, srcdir){
+  var dic = {};
+  // var prom = new Promise(function(resolve, reject) {
+  //   resolve(getExifData(srcdir + '/' + file))
+  // });
+  //
+  // prom.then(function(d){
+  //   dic = d;
+  // });
+
+  dic["file"] = file
+
+
+  dic["upd"] = getFileUpdatedDate(srcdir + '/' + file).toISOString().replace(/T/, ' ').replace(/\..+/, '')
+  dic["cr2"] = pathExists(srcdir + '/' + file.split('.').slice(0, -1).join('.') + '.CR2')
+
+  // await sharp(srcdir + '/' + file)
+  // .resize(size)
+  // .rotate()
+  // .toBuffer()
+  // .then( data => { dic["b64"] = data.toString('base64') })
+  // .catch( err => { console.log(err) });
+  console.log(dic)
+  return dic;
+}
+
+async function minFilePreview(file, srcdir, size){
+  var d;
   await sharp(srcdir + '/' + file)
-  .resize(900)
+  .resize(parseInt(size))
   .rotate()
   .toBuffer()
-  .then( data => { b64 = data.toString('base64') })
+  .then( data => { d = data })
   .catch( err => { console.log(err) });
-
-
-  io.to(cid).emit('newImg', { data: b64, name: file, id: id, height: height, width: width, orientation: dimensions.orientation, updated: upd, cr2: cr2 });
+  return d;
 }
 
 const getFileUpdatedDate = (path) => {
@@ -70,68 +158,90 @@ function pathExists(path){
   }
 }
 
-app.get('/', function(req, res){
-  res.sendFile(__dirname + '/public/index.html');
-});
+function aquireChildren(t, p){
+  var arr = []
+  for(var i = 0; i < t.length; i++){
+    var obj = {
+      name: t[i]["name"],
+      path: t[i]["path"].replace(rootdir, ""),
+      parent: p
+    }
+    arr.push(obj)
+    if(t[i]["children"].length > 0){
+      var test = []
+      return arr.concat(aquireChildren(t[i]["children"], t[i]["name"]))
+    }
+  }
+  return arr
+}
 
-app.get('/list/:arg', function(req, res){
-  var dir = req.params.arg
-  res.sendFile(__dirname + '/public/folder.html');
-});
+function listImg(fp){
+  p = path.join(rootdir, fp)
+  var files = fs.readdirSync(p);
+  files = files.filter(isImage);
+  files.sort()
 
-app.get('/src/:path', function(req, res){
-  res.sendFile(__dirname + '/public/src/' + req.params.path);
-});
+  fd = []
+  for(var i = 0; i < files.length; i++){
+    fd.push(minFile(files[i], p))
+  }
 
-app.get('/data/:folder/:image', function(req, res){
-  res.sendFile(rootdir + req.params.folder + "/" + req.params.image);
-});
+  return fd
+}
 
-io.on('connection', function(client){
-  console.log('a user connected');
-  client.on('imgrequest', function(data) {
-    var srcdir = path.join(rootdir, data["location"]);
+minFile("IMG_0170.JPG", rootdir + "/" + "shoot_frankfurt_hood")
 
-    fs.readdir(srcdir, function (err, files) {
-      if (err) {
-          return console.log('Unable to scan directory: ' + err);
-      }
 
-      files = files.filter(isImage);
-      files.sort()
-
-      if(data["latest"] == 0){
-        io.to(client.id).emit('imgCount', { data: files.length })
-      }
-
-      var id = data["latest"];
-      var until = data["latest"] + update_interval;
-
-      while(id < files.length && id < until){
-        minFile(files[id], srcdir, id, client.id)
-        id = id + 1;
-      }
-
-      io.to(client.id).emit('imgdone', id)
-
+app.get('/', async (req, res) => {
+    var prom = new Promise(function(resolve, reject) {
+      resolve(aquireChildren(dirTree(rootdir, { extensions: /\ / })["children"], "__root__"))
     });
-  });
-  client.on('linkrequest', function(data) {
-    fs.readdir(rootdir, function (err, files) {
-      if (err) {
-          return console.log('Unable to scan directory: ' + err);
-      }
 
-      files = files.filter(isFolder);
-      files.sort()
-
-      files.forEach(function(file){
-        io.to(client.id).emit('newlink', file)
+    prom.then(function(albums){
+      console.log(albums)
+      res.render('index', {
+        albums
       });
-    });
-  });
+    })
 });
 
-http.listen(3000, function(){
+app.get('/l', function(req, res){
+  var prom = new Promise(function(resolve, reject) {
+    resolve(listImg(req.query.folder))
+  });
+
+  prom.then(function(images){
+    console.log("images")
+    folder = req.query.folder
+    res.render('lister', {
+      folder,
+      images
+    });
+  })
+});
+
+app.get('/s/', function(req, res){
+  console.log(req.query.folder)
+  console.log(req.query.image)
+  minFileAs(req.query.image, path.join(rootdir,req.query.folder))
+    .then( data => {res.send(data)} )
+    .catch(err => res.send("err: " + err));
+});
+
+app.get('/p/', function(req, res){
+  res.contentType('image/jpeg');
+  console.log(req.query.folder)
+  console.log(req.query.image)
+  minFilePreview(req.query.image, path.join(rootdir,req.query.folder), req.query.size)
+    .then( data => {res.send(data)} )
+    .catch(err => res.send("404 file not found"));
+});
+
+app.get('/f/', function(req, res){
+  res.contentType('image/jpeg');
+  res.sendFile(path.join(path.join(rootdir,req.query.folder), req.query.image))
+});
+
+app.listen(3000, function(){
   console.log('listening on *:3000');
 });
