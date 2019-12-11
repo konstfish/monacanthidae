@@ -1,25 +1,41 @@
 @layout('layouts.app')
 
 @section('content')
-  <div class="link-container">
+  <div id="main" class="container">
+    <div id="gallery" class="row">
     @each(album in albums)
-      <div class="post-preview">
-        <h3 class="post-title">
-          {{ album.name }}
-        </h3>
-        <a href="l?folder={{ album.path }}">
-          {{ album.path }}
-        </a>
+      <div class="col-xs-4 gallery-item">
+        <div class="album">
+          <img class="or{{album.prev_imgs[0].orientation}}" src="/p?folder={{ album.path }}&image={{album.prev_imgs[0].file}}&size=250" alt="" />
+          <img class="or{{album.prev_imgs[1].orientation}}" src="/p?folder={{ album.path }}&image={{album.prev_imgs[1].file}}&size=250" alt="" />
+          <img class="or{{album.prev_imgs[2].orientation}}" src="/p?folder={{ album.path }}&image={{album.prev_imgs[2].file}}&size=250" alt="" />
+        </div>
+        <p>
+          <h3 class="post-title">
+            {{ album.name }}
+          </h3>
+          <a href="l?folder={{ album.path }}">
+            {{ album.path }}
+          </a>
+        </p>
       </div>
     @endeach
+    </div>
   </div>
-
-  <style>
-    h3{
-      padding: 0px;
-      margin: 2px;
-      margin-top: 12px;
-    }
-  </style>
-
 @endsection
+
+{{--
+<div class="link-container">
+  @each(album in albums)
+    <div class="post-preview">
+      <h3 class="post-title">
+        {{ album.name }}
+      </h3>
+      <a href="l?folder={{ album.path }}">
+        {{ album.path }}
+        {{ album.prev_imgs }}
+      </a>
+    </div>
+  @endeach
+</div>
+ --}}

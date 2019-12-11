@@ -13,7 +13,7 @@
   "dependencies": {
     "body-parser": "^1.19.0",
     "directory-tree": "^2.2.4",
-    "exif": "^0.6.0",
+    "exif-parser": "^0.1.12",
     "express": "^4.17.1",
     "express-edge": "^2.0.1",
     "sharp": "^0.23.2",

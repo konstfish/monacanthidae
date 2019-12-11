@@ -5,7 +5,7 @@ const path = require('path');
 const fs = require('fs');
 const dirTree = require('directory-tree');
 const sharp = require('sharp');
-var ExifImage = require('exif').ExifImage;
+const exif = require('exif-parser');
 const app = new express();
 
 app.use(express.static('public'));
@@ -33,28 +33,28 @@ if(process.env.IN_DOCKER_CONTAINER){
 
 async function minFileAs(file, srcdir){
   var dic = {};
-  dic["file"] = file
 
-  // new ExifImage({ image : srcdir + '/' + file}, function (error, exifData) {
-  // if (error)
-  //   console.log('Error: '+error.message);
-  // else
-  //   console.log(exifData);
-  //   dic["camera"] = exifData["image"]["Model"]
-  //   dic["manu"] = exifData["image"]["Make"]
-  //   dic["lens"] = exifData["exif"]["LensModel"]
-  //   dic["orientatio1n"] = exifData["image"]["Orientation"]
-  //   if(dic["orientation"] == 8){
-  //     dic["width"] = exifData["exif"]["ExifImageHeight"]
-  //     dic["heigth"] = exifData["exif"]["ExifImageWidth"]
-  //   }else{
-  //     dic["width"] = exifData["exif"]["ExifImageWidth"]
-  //     dic["heigth"] = exifData["exif"]["ExifImageHeight"]
-  //   }
-  //   dic["iso"] = exifData["exif"]["ISO"]
-  //   dic["exp_time"] = exifData["exif"]["ExposureTime"]
-  //   console.log(dic)
-  // });
+  const buffer = fs.readFileSync(srcdir + '/' + file);
+  const parser = exif.create(buffer);
+  const result = parser.parse();
+
+  dic["make"] = result.tags.Make
+  dic["camera"] = result.tags.Model
+  dic["lensmodel"] =  result.tags.LensModel
+  dic["orientation"] = result.tags.Orientation
+  if(dic["orientation"] == 8){
+    dic["width"] = result.tags.ExifImageHeight
+    dic["heigth"] = result.tags.ExifImageWidth
+  }else{
+    dic["width"] = result.tags.ExifImageWidth
+    dic["heigth"] = result.tags.ExifImageHeight
+  }
+  dic["iso"] = result.tags.ISO
+  dic["exp_time"] = result.tags.ExposureTime
+  dic["fnumber"] = result.tags.FNumber
+  dic["focallength"] = result.tags.FocalLength
+
+  dic["file"] = file
 
   dic["upd"] = getFileUpdatedDate(srcdir + '/' + file).toISOString().replace(/T/, ' ').replace(/\..+/, '')
   dic["cr2"] = pathExists(srcdir + '/' + file.split('.').slice(0, -1).join('.') + '.CR2')
@@ -69,41 +69,30 @@ async function minFileAs(file, srcdir){
   return dic;
 }
 
-function getExifData(f){
-  var dic = {};
-  new ExifImage({ image : f}, function (error, exifData) {
-  if (error)
-    console.log('Error: '+error.message);
-  else
-    dic["camera"] = exifData["image"]["Model"]
-    dic["manu"] = exifData["image"]["Make"]
-    dic["lens"] = exifData["exif"]["LensModel"]
-    dic["orientatio1n"] = exifData["image"]["Orientation"]
-    if(dic["orientation"] == 8){
-      dic["width"] = exifData["exif"]["ExifImageHeight"]
-      dic["heigth"] = exifData["exif"]["ExifImageWidth"]
-    }else{
-      dic["width"] = exifData["exif"]["ExifImageWidth"]
-      dic["heigth"] = exifData["exif"]["ExifImageHeight"]
-    }
-    dic["iso"] = exifData["exif"]["ISO"]
-    dic["exp_time"] = exifData["exif"]["ExposureTime"]
-  });
-  return dic
-}
-
 function minFile(file, srcdir){
   var dic = {};
-  // var prom = new Promise(function(resolve, reject) {
-  //   resolve(getExifData(srcdir + '/' + file))
-  // });
-  //
-  // prom.then(function(d){
-  //   dic = d;
-  // });
+
+  const buffer = fs.readFileSync(srcdir + '/' + file);
+  const parser = exif.create(buffer);
+  const result = parser.parse();
+
+  dic["make"] = result.tags.Make
+  dic["camera"] = result.tags.Model
+  dic["lensmodel"] =  result.tags.LensModel
+  dic["orientation"] = result.tags.Orientation
+  if(dic["orientation"] == 8){
+    dic["width"] = result.tags.ExifImageHeight
+    dic["heigth"] = result.tags.ExifImageWidth
+  }else{
+    dic["width"] = result.tags.ExifImageWidth
+    dic["heigth"] = result.tags.ExifImageHeight
+  }
+  dic["iso"] = result.tags.ISO
+  dic["exp_time"] = result.tags.ExposureTime
+  dic["fnumber"] = result.tags.FNumber
+  dic["focallength"] = result.tags.FocalLength
 
   dic["file"] = file
-
 
   dic["upd"] = getFileUpdatedDate(srcdir + '/' + file).toISOString().replace(/T/, ' ').replace(/\..+/, '')
   dic["cr2"] = pathExists(srcdir + '/' + file.split('.').slice(0, -1).join('.') + '.CR2')
@@ -114,7 +103,6 @@ function minFile(file, srcdir){
   // .toBuffer()
   // .then( data => { dic["b64"] = data.toString('base64') })
   // .catch( err => { console.log(err) });
-  console.log(dic)
   return dic;
 }
 
@@ -161,9 +149,11 @@ function pathExists(path){
 function aquireChildren(t, p){
   var arr = []
   for(var i = 0; i < t.length; i++){
+    var pth = t[i]["path"].replace(rootdir, "")
     var obj = {
       name: t[i]["name"],
-      path: t[i]["path"].replace(rootdir, ""),
+      path: pth,
+      prev_imgs: listImgRed(pth),
       parent: p
     }
     arr.push(obj)
@@ -173,6 +163,20 @@ function aquireChildren(t, p){
     }
   }
   return arr
+}
+
+function listImgRed(fp){
+  p = path.join(rootdir, fp)
+  var files = fs.readdirSync(p);
+  files = files.filter(isImage);
+  files.sort()
+
+  fd = []
+  fd.push(minFile(files[0], p))
+  fd.push(minFile(files[parseInt(files.length/2)], p))
+  fd.push(minFile(files[files.length - 1], p))
+
+  return fd
 }
 
 function listImg(fp){
@@ -189,8 +193,9 @@ function listImg(fp){
   return fd
 }
 
-minFile("IMG_0170.JPG", rootdir + "/" + "shoot_frankfurt_hood")
-
+console.log(
+  minFile("IMG_0170.JPG", rootdir + "/" + "shoot_frankfurt_hood")
+)
 
 app.get('/', async (req, res) => {
     var prom = new Promise(function(resolve, reject) {
@@ -198,7 +203,6 @@ app.get('/', async (req, res) => {
     });
 
     prom.then(function(albums){
-      console.log(albums)
       res.render('index', {
         albums
       });
@@ -211,7 +215,6 @@ app.get('/l', function(req, res){
   });
 
   prom.then(function(images){
-    console.log("images")
     folder = req.query.folder
     res.render('lister', {
       folder,
@@ -221,8 +224,8 @@ app.get('/l', function(req, res){
 });
 
 app.get('/s/', function(req, res){
-  console.log(req.query.folder)
-  console.log(req.query.image)
+  // console.log(req.query.folder)
+  // console.log(req.query.image)
   minFileAs(req.query.image, path.join(rootdir,req.query.folder))
     .then( data => {res.send(data)} )
     .catch(err => res.send("err: " + err));
@@ -230,8 +233,8 @@ app.get('/s/', function(req, res){
 
 app.get('/p/', function(req, res){
   res.contentType('image/jpeg');
-  console.log(req.query.folder)
-  console.log(req.query.image)
+  // console.log(req.query.folder)
+  // console.log(req.query.image)
   minFilePreview(req.query.image, path.join(rootdir,req.query.folder), req.query.size)
     .then( data => {res.send(data)} )
     .catch(err => res.send("404 file not found"));
