@@ -150,13 +150,16 @@ function aquireChildren(t, p){
   var arr = []
   for(var i = 0; i < t.length; i++){
     var pth = t[i]["path"].replace(rootdir, "")
-    var obj = {
-      name: t[i]["name"],
-      path: pth,
-      prev_imgs: listImgRed(pth),
-      parent: p
+    var lstImgRe = listImgRed(pth)
+    if(lstImgRe.length != 0){
+      var obj = {
+        name: t[i]["name"],
+        path: pth,
+        prev_imgs: lstImgRe,
+        parent: p
+      }
+      arr.push(obj)
     }
-    arr.push(obj)
     if(t[i]["children"].length > 0){
       var test = []
       return arr.concat(aquireChildren(t[i]["children"], t[i]["name"]))
@@ -170,8 +173,9 @@ function listImgRed(fp){
   var files = fs.readdirSync(p);
   files = files.filter(isImage);
   files.sort()
+
+  fd = []
   if(files.length > 0){
-    fd = []
     fd.push(minFile(files[0], p))
     fd.push(minFile(files[parseInt(files.length/2)], p))
     fd.push(minFile(files[files.length - 1], p))
