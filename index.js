@@ -194,10 +194,6 @@ function listImg(fp){
   return fd
 }
 
-console.log(
-  minFile("IMG_0170.JPG", rootdir + "/" + "shoot_frankfurt_hood")
-)
-
 app.get('/', async (req, res) => {
     var prom = new Promise(function(resolve, reject) {
       resolve(aquireChildren(dirTree(rootdir, { extensions: /\ / })["children"], "__root__"))
