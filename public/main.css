@@ -23,6 +23,8 @@ img{
 
 #main #gallery .gallery-item {
   height: 300px;
+  margin: 24px;
+  margin-bottom: 56px;
 }
 
 #main #gallery .gallery-item .album {
