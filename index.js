@@ -170,11 +170,12 @@ function listImgRed(fp){
   var files = fs.readdirSync(p);
   files = files.filter(isImage);
   files.sort()
-
-  fd = []
-  fd.push(minFile(files[0], p))
-  fd.push(minFile(files[parseInt(files.length/2)], p))
-  fd.push(minFile(files[files.length - 1], p))
+  if(files.length > 0){
+    fd = []
+    fd.push(minFile(files[0], p))
+    fd.push(minFile(files[parseInt(files.length/2)], p))
+    fd.push(minFile(files[files.length - 1], p))
+  }
 
   return fd
 }

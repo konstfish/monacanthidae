@@ -1,6 +1,6 @@
 FROM node
-WORKDIR /opt/konstfile
-COPY . /opt/konstfile
+WORKDIR /opt/monacanthidae
+COPY . /opt/monacanthidae
 ENV IN_DOCKER_CONTAINER 1
 RUN npm i
 ENTRYPOINT [ "npm", "start" ]
