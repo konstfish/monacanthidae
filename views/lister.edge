@@ -4,8 +4,8 @@
   {{ folder }}
   <div class="container">
     @each(image in images)
-        <a class="image" href="f/?folder={{ folder }}&image={{ image.file }}">
-          <img class="lazy" src="p?folder={{ folder }}&image={{ image.file }}&size=20" data-src="p?folder={{ folder }}&image={{ image.file }}&size=600">
+        <a class="image" href="/f/?folder={{ folder }}&image={{ image.file }}">
+          <img class="lazy" src="/p?folder={{ folder }}&image={{ image.file }}&size=20" data-src="p?folder={{ folder }}&image={{ image.file }}&size=600">
           <br>
           <span class="img_desc">{{ image.file }}</span>
           <span class="img_sz">{{ image.width }}x{{ image.heigth }}</span>

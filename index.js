@@ -6,6 +6,7 @@ const fs = require('fs');
 const dirTree = require('directory-tree');
 const sharp = require('sharp');
 const exif = require('exif-parser');
+//const Albums = require('./models/Albums');
 const app = new express();
 
 app.use(express.static('public'));
@@ -24,7 +25,6 @@ app.use(function(req, res, next) {
   next();
 });
 
-const update_interval = 12;
 if(process.env.IN_DOCKER_CONTAINER){
   var rootdir = '/data/'
 }else{
@@ -149,6 +149,7 @@ function pathExists(path){
 function aquireChildren(t, p){
   var arr = []
   for(var i = 0; i < t.length; i++){
+    console.log(t[i]["path"].replace(rootdir, ""))
     var pth = t[i]["path"].replace(rootdir, "")
     var lstImgRe = listImgRed(pth)
     if(lstImgRe.length != 0){
@@ -166,22 +167,6 @@ function aquireChildren(t, p){
     }
   }
   return arr
-}
-
-function listImgRed(fp){
-  p = path.join(rootdir, fp)
-  var files = fs.readdirSync(p);
-  files = files.filter(isImage);
-  files.sort()
-
-  fd = []
-  if(files.length > 0){
-    fd.push(minFile(files[0], p))
-    fd.push(minFile(files[parseInt(files.length/2)], p))
-    fd.push(minFile(files[files.length - 1], p))
-  }
-
-  return fd
 }
 
 function listImg(fp){
@@ -244,6 +229,10 @@ app.get('/p/', function(req, res){
 app.get('/f/', function(req, res){
   res.contentType('image/jpeg');
   res.sendFile(path.join(path.join(rootdir,req.query.folder), req.query.image))
+});
+
+app.get('/l', function(req, res){
+  res.send(dirTree(rootdir, { extensions: /\ / }))
 });
 
 app.listen(3000, function(){
