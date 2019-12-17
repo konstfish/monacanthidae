@@ -4,9 +4,10 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const fs = require('fs');
 const dirTree = require('directory-tree');
-const sharp = require('sharp');
-const exif = require('exif-parser');
-//const Albums = require('./models/Albums');
+
+const tools = require('./models/tools');
+const imgproc = require('./models/imageProc');
+var Albums = require('./models/Albums');
 const app = new express();
 
 app.use(express.static('public'));
@@ -31,173 +32,16 @@ if(process.env.IN_DOCKER_CONTAINER){
   var rootdir = path.join(__dirname + '/data/')
 }
 
-async function minFileAs(file, srcdir){
-  var dic = {};
-
-  const buffer = fs.readFileSync(srcdir + '/' + file);
-  const parser = exif.create(buffer);
-  const result = parser.parse();
-
-  dic["make"] = result.tags.Make
-  dic["camera"] = result.tags.Model
-  dic["lensmodel"] =  result.tags.LensModel
-  dic["orientation"] = result.tags.Orientation
-  if(dic["orientation"] == 8){
-    dic["width"] = result.tags.ExifImageHeight
-    dic["heigth"] = result.tags.ExifImageWidth
-  }else{
-    dic["width"] = result.tags.ExifImageWidth
-    dic["heigth"] = result.tags.ExifImageHeight
-  }
-  dic["iso"] = result.tags.ISO
-  dic["exp_time"] = result.tags.ExposureTime
-  dic["fnumber"] = result.tags.FNumber
-  dic["focallength"] = result.tags.FocalLength
-
-  dic["file"] = file
-
-  dic["upd"] = getFileUpdatedDate(srcdir + '/' + file).toISOString().replace(/T/, ' ').replace(/\..+/, '')
-  dic["cr2"] = pathExists(srcdir + '/' + file.split('.').slice(0, -1).join('.') + '.CR2')
-
-  // await sharp(srcdir + '/' + file)
-  // .resize(size)
-  // .rotate()
-  // .toBuffer()
-  // .then( data => { dic["b64"] = data.toString('base64') })
-  // .catch( err => { console.log(err) });
-
-  return dic;
-}
-
-function minFile(file, srcdir){
-  var dic = {};
-
-  const buffer = fs.readFileSync(srcdir + '/' + file);
-  const parser = exif.create(buffer);
-  const result = parser.parse();
-
-  dic["make"] = result.tags.Make
-  dic["camera"] = result.tags.Model
-  dic["lensmodel"] =  result.tags.LensModel
-  dic["orientation"] = result.tags.Orientation
-  if(dic["orientation"] == 8){
-    dic["width"] = result.tags.ExifImageHeight
-    dic["heigth"] = result.tags.ExifImageWidth
-  }else{
-    dic["width"] = result.tags.ExifImageWidth
-    dic["heigth"] = result.tags.ExifImageHeight
-  }
-  dic["iso"] = result.tags.ISO
-  dic["exp_time"] = result.tags.ExposureTime
-  dic["fnumber"] = result.tags.FNumber
-  dic["focallength"] = result.tags.FocalLength
-
-  dic["file"] = file
-
-  dic["upd"] = getFileUpdatedDate(srcdir + '/' + file).toISOString().replace(/T/, ' ').replace(/\..+/, '')
-  dic["cr2"] = pathExists(srcdir + '/' + file.split('.').slice(0, -1).join('.') + '.CR2')
-
-  // await sharp(srcdir + '/' + file)
-  // .resize(size)
-  // .rotate()
-  // .toBuffer()
-  // .then( data => { dic["b64"] = data.toString('base64') })
-  // .catch( err => { console.log(err) });
-  return dic;
-}
-
-async function minFilePreview(file, srcdir, size){
-  var d;
-  await sharp(srcdir + '/' + file)
-  .resize(parseInt(size))
-  .rotate()
-  .toBuffer()
-  .then( data => { d = data })
-  .catch( err => { console.log(err) });
-  return d;
-}
-
-const getFileUpdatedDate = (path) => {
-  const stats = fs.statSync(path)
-  return stats.mtime
-}
-
-function isImage(lmnt) {
-  if(lmnt.toLowerCase().endsWith('.jpg')){
-    return lmnt
-  }
-}
-
-function isFolder(lmnt) {
-  if(fs.lstatSync(rootdir + lmnt).isDirectory()){
-    return lmnt
-  }
-}
-
-function pathExists(path){
-  try {
-  if (fs.existsSync(path)) {
-    return 1
-  }else{
-    return 0
-  }
-  } catch(err) {
-    return 0
-  }
-}
-
-function aquireChildren(t, p){
-  var arr = []
-  for(var i = 0; i < t.length; i++){
-    console.log(t[i]["path"].replace(rootdir, ""))
-    var pth = t[i]["path"].replace(rootdir, "")
-    var lstImgRe = listImgRed(pth)
-    if(lstImgRe.length != 0){
-      var obj = {
-        name: t[i]["name"],
-        path: pth,
-        prev_imgs: lstImgRe,
-        parent: p
-      }
-      arr.push(obj)
-    }
-    if(t[i]["children"].length > 0){
-      var test = []
-      return arr.concat(aquireChildren(t[i]["children"], t[i]["name"]))
-    }
-  }
-  return arr
-}
-
-function listImg(fp){
-  p = path.join(rootdir, fp)
-  var files = fs.readdirSync(p);
-  files = files.filter(isImage);
-  files.sort()
-
-  fd = []
-  for(var i = 0; i < files.length; i++){
-    fd.push(minFile(files[i], p))
-  }
-
-  return fd
-}
-
 app.get('/', async (req, res) => {
-    var prom = new Promise(function(resolve, reject) {
-      resolve(aquireChildren(dirTree(rootdir, { extensions: /\ / })["children"], "__root__"))
+    const albums = await Albums
+    res.render('index', {
+      albums
     });
-
-    prom.then(function(albums){
-      res.render('index', {
-        albums
-      });
-    })
 });
 
 app.get('/l', function(req, res){
   var prom = new Promise(function(resolve, reject) {
-    resolve(listImg(req.query.folder))
+    resolve(tools.listImg(req.query.folder))
   });
 
   prom.then(function(images){
@@ -212,7 +56,7 @@ app.get('/l', function(req, res){
 app.get('/s/', function(req, res){
   // console.log(req.query.folder)
   // console.log(req.query.image)
-  minFileAs(req.query.image, path.join(rootdir,req.query.folder))
+  imgproc.minFileAs(req.query.image, path.join(rootdir,req.query.folder))
     .then( data => {res.send(data)} )
     .catch(err => res.send("err: " + err));
 });
@@ -221,7 +65,7 @@ app.get('/p/', function(req, res){
   res.contentType('image/jpeg');
   // console.log(req.query.folder)
   // console.log(req.query.image)
-  minFilePreview(req.query.image, path.join(rootdir,req.query.folder), req.query.size)
+  imgproc.minFilePreview(req.query.image, path.join(rootdir,req.query.folder), req.query.size)
     .then( data => {res.send(data)} )
     .catch(err => res.send("404 file not found"));
 });
@@ -231,8 +75,11 @@ app.get('/f/', function(req, res){
   res.sendFile(path.join(path.join(rootdir,req.query.folder), req.query.image))
 });
 
-app.get('/l', function(req, res){
-  res.send(dirTree(rootdir, { extensions: /\ / }))
+app.get('/t', function(req, res){
+  delete require.cache[require.resolve('./models/Albums')];
+  var Albums = require('./models/Albums');
+
+  res.send("t")
 });
 
 app.listen(3000, function(){
