@@ -84,7 +84,7 @@ module.exports = {
       }
       if(t[i]["children"].length > 0){
         var test = []
-        return arr.concat(aquireChildren(t[i]["children"], t[i]["name"]))
+        return arr.concat(module.exports.aquireChildren(t[i]["children"], t[i]["name"]))
       }
     }
     return arr
