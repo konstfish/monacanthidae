@@ -1,41 +1,27 @@
 @layout('layouts.app')
 
 @section('content')
-  <div id="main" class="container">
-    <div id="gallery" class="row">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/kute.js/1.6.2/kute.min.js"></script>
+
+  <div class="album-container">
     @each(album in albums)
-      <div class="col-xs-4 gallery-item">
-        <div class="album">
-          <img class="or{{album.prev_imgs[0].orientation}}" src="/p?folder={{ album.path }}&image={{album.prev_imgs[0].file}}&size=250" alt="" />
-          <img class="or{{album.prev_imgs[1].orientation}}" src="/p?folder={{ album.path }}&image={{album.prev_imgs[1].file}}&size=250" alt="" />
-          <img class="or{{album.prev_imgs[2].orientation}}" src="/p?folder={{ album.path }}&image={{album.prev_imgs[2].file}}&size=250" alt="" />
+      <div class="album-wrapper">
+        <div class="album" id="al{{$loop.index}}">
+          <div class="info">
+            <h3 class="post-title">
+              {{ album.name }}
+            </h3>
+            <a href="l?folder={{ album.path }}">
+              {{ album.path }}
+            </a>
+          </div>
+          <img class="or or{{album.prev_imgs[0].orientation}}" src="/p?folder={{ album.path }}&image={{album.prev_imgs[0].file}}&size=250" alt="1" />
+          <img class="or or{{album.prev_imgs[1].orientation}}" src="/p?folder={{ album.path }}&image={{album.prev_imgs[1].file}}&size=250" alt="2" />
+          <img class="or or{{album.prev_imgs[2].orientation}}" src="/p?folder={{ album.path }}&image={{album.prev_imgs[2].file}}&size=250" alt="3" />
         </div>
-        <p>
-          <h3 class="post-title">
-            {{ album.name }}
-          </h3>
-          <a href="l?folder={{ album.path }}">
-            {{ album.path }}
-          </a>
-        </p>
       </div>
     @endeach
-    </div>
   </div>
-@endsection
 
-{{--
-<div class="link-container">
-  @each(album in albums)
-    <div class="post-preview">
-      <h3 class="post-title">
-        {{ album.name }}
-      </h3>
-      <a href="l?folder={{ album.path }}">
-        {{ album.path }}
-        {{ album.prev_imgs }}
-      </a>
-    </div>
-  @endeach
-</div>
- --}}
+  <script src="/index-wrap.js"></script>
+@endsection
