@@ -1,4 +1,4 @@
-if [ "$1" == "b" ]; then
+if [ "$1" = "b" ]; then
   docker build -t monacanthidae .
 fi
 
