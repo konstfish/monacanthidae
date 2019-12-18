@@ -9,4 +9,4 @@ if(process.env.IN_DOCKER_CONTAINER){
   var rootdir = path.join(__dirname + '../../data/')
 }
 
-module.exports = tools.aquireChildren(dirTree(rootdir, { extensions: /\ / })["children"], "__root__");
+module.exports = await tools.aquireChildren(dirTree(rootdir, { extensions: /\ / })["children"], "__root__");

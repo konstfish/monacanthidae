@@ -10,7 +10,15 @@ const dirTree = require('directory-tree');
 
 const tools = require('./models/tools');
 const imgproc = require('./models/imageProc');
-var Albums = require('./models/Albums');
+
+if(process.env.IN_DOCKER_CONTAINER){
+  var rootdir = '/data/'
+}else{
+  var rootdir = path.join(__dirname + '/data/')
+}
+
+const Albums = tools.aquireChildren(dirTree(rootdir, { extensions: /\ / })["children"], "__root__");
+
 const app = new express();
 
 mongoose.promise = global.Promise;
@@ -35,14 +43,8 @@ app.use(function(req, res, next) {
 mongoose.connect('mongodb://localhost/monacanthidae-be', { useNewUrlParser: true, useUnifiedTopology: true });
 mongoose.set('debug', true);
 
-if(process.env.IN_DOCKER_CONTAINER){
-  var rootdir = '/data/'
-}else{
-  var rootdir = path.join(__dirname + '/data/')
-}
-
 app.get('/', async (req, res) => {
-    const albums = await Albums
+    const albums = Albums
     res.render('index', {
       albums
     });
@@ -82,13 +84,6 @@ app.get('/p/', function(req, res){
 app.get('/f/', function(req, res){
   res.contentType('image/jpeg');
   res.sendFile(path.join(path.join(rootdir,req.query.folder), req.query.image))
-});
-
-app.get('/t', function(req, res){
-  delete require.cache[require.resolve('./models/Albums')];
-  var Albums = require('./models/Albums');
-
-  res.send("t")
 });
 
 if(isProduction){

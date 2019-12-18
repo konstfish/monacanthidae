@@ -72,6 +72,7 @@ module.exports = {
     for(var i = 0; i < t.length; i++){
       //console.log(t[i]["path"].replace(rootdir, ""))
       var pth = t[i]["path"].replace(rootdir, "")
+      console.log(pth)
       if(isFolder(pth)){
         var lstImgRe = listImgRed(pth)
         if(lstImgRe.length != 0){
