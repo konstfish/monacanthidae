@@ -74,7 +74,7 @@ module.exports = {
       //console.log(t[i]["path"].replace(rootdir, ""))
       var pth = t[i]["path"].replace(rootdir, "")
       console.log(pth)
-      if(isFolder(pth)){
+      if(t[i]["type"] == 'directory'){
         var lstImgRe = listImgRed(pth)
         if(lstImgRe.length != 0){
           var obj = {
@@ -88,7 +88,7 @@ module.exports = {
       }
       if(t[i]["children"].length > 0){
         var test = []
-        return arr.concat(module.exports.aquireChildren(t[i]["children"], t[i]["name"]))
+        arr = arr.concat(module.exports.aquireChildren(t[i]["children"], t[i]["name"]))
       }
     }
     return arr
