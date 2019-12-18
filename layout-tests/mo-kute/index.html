@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.0.0/css/bootstrap.min.css">
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.lazy/1.7.9/jquery.lazy.min.js"></script>
+
+  <style>
+    body{
+      padding: 12px;
+      overflow-x: hidden;
+    }
+
+    .album-container{
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      align-items: center;
+      align-content: center;
+    }
+
+    .album-wrapper{
+      width: 300px;
+      margin: 10px;
+      margin-right: 100px;
+      margin-left: 100px;
+      height: 300px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      align-content: center;
+    }
+
+    .album{
+      position: relative;
+      height: 80%;
+      width: 80%;
+    }
+
+    h3{
+      margin: 0px;
+    }
+
+    .album img{
+      position: absolute;
+      top: 0;
+      left: 0;
+      border: 4px solid #FFF;
+      -moz-box-shadow: 0 0 4px black;
+      -webkit-box-shadow: 0 0 4px black;
+      box-shadow: 0 0 4px black;
+      -moz-border-radius: 6px;
+      -webkit-border-radius: 6px;
+      border-radius: 6px;
+    }
+
+    .album img:nth-child(2) {
+      z-index: 3;
+      -moz-transform: rotate(-4deg);
+      -ms-transform: rotate(-4deg);
+      -webkit-transform: rotate(-4deg);
+      transform: rotate(-4deg);
+    }
+
+    .album img:nth-child(3) {
+      z-index: 2;
+    }
+
+    .album img:last-child {
+      z-index: 1;
+      -moz-transform: rotate(4deg);
+      -ms-transform: rotate(4deg);
+      -webkit-transform: rotate(4deg);
+      transform: rotate(4deg);
+    }
+
+    .or{
+      margin-top: 60px;
+    }
+
+    .or1{
+      margin-top: 100px;
+      width: 200px;
+    }
+
+    .or8{
+      margin-left: 25px;
+      width: 150px;
+    }
+
+    .or6{
+      margin-left: 25px;
+      width: 150px;
+    }
+
+    .orundefined  {
+      width: 150px;
+    }
+
+  </style>
+</head>
+<body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/kute.js/1.6.2/kute.min.js"></script>
+
+  <header>
+    <h4>monacanthidae</h4>
+  </header>
+
+  <div class="album-container">
+    <div class="album-wrapper">
+      <div class="album" id="al1">
+        <div class="info">
+          <h3>test</h3>
+          <a href="l?folder=budapest_homo_trip">
+            budapest_homo_trip
+          </a>
+        </div>
+        <img class="or or1" src="https://shoot.konst.fish/p?folder=budapest_homo_trip&amp;image=IMG_0404.JPG&amp;size=250" alt="">
+        <img class="or or1" src="https://shoot.konst.fish/p?folder=budapest_homo_trip&amp;image=IMG_0427.JPG&amp;size=250" alt="">
+        <img class="or or1" src="https://shoot.konst.fish/p?folder=budapest_homo_trip&amp;image=IMG_0450.JPG&amp;size=250" alt="">
+      </div>
+    </div>
+
+    <div class="album-wrapper">
+      <div class="album" id="al2">
+        <div class="info">
+          <h3>test</h3>
+          <a href="l?folder=budapest_homo_trip">
+            budapest_homo_trip
+          </a>
+        </div>
+        <img class="or or1" src="https://shoot.konst.fish/p?folder=budapest_homo_trip&amp;image=IMG_0404.JPG&amp;size=250" alt="">
+        <img class="or or1" src="https://shoot.konst.fish/p?folder=budapest_homo_trip&amp;image=IMG_0427.JPG&amp;size=250" alt="">
+        <img class="or or1" src="https://shoot.konst.fish/p?folder=budapest_homo_trip&amp;image=IMG_0450.JPG&amp;size=250" alt="">
+      </div>
+    </div>
+
+    <div class="album-wrapper">
+      <div class="album">
+        <div class="info">
+          <h3>test</h3>
+          <a href="l?folder=budapest_homo_trip">
+            budapest_homo_trip
+          </a>
+        </div>
+        <img class="or or8" src="https://shoot.konst.fish/p?folder=deutschland_tabak_kaufen/shoot_frankfurt_hood&amp;image=IMG_0170.JPG&amp;size=250" alt="">
+        <img class="or or1" src="https://shoot.konst.fish/p?folder=deutschland_tabak_kaufen/shoot_frankfurt_hood&amp;image=IMG_0211.JPG&amp;size=250" alt="">
+        <img class="or or8" src="https://shoot.konst.fish/p?folder=deutschland_tabak_kaufen/shoot_frankfurt_hood&amp;image=IMG_0248.JPG&amp;size=250" alt="">
+      </div>
+      </div>
+
+      <div class="album-wrapper">
+        <div class="album">
+          <div class="info">
+            <h3>test</h3>
+            <a href="l?folder=budapest_homo_trip">
+              budapest_homo_trip
+            </a>
+          </div>
+          <img class="or or8" src="https://shoot.konst.fish/p?folder=deutschland_tabak_kaufen/shoot_frankfurt_hood&amp;image=IMG_0170.JPG&amp;size=250" alt="">
+          <img class="or or1" src="https://shoot.konst.fish/p?folder=deutschland_tabak_kaufen/shoot_frankfurt_hood&amp;image=IMG_0211.JPG&amp;size=250" alt="">
+          <img class="or or8" src="https://shoot.konst.fish/p?folder=deutschland_tabak_kaufen/shoot_frankfurt_hood&amp;image=IMG_0248.JPG&amp;size=250" alt="">
+        </div>
+        </div>
+
+        <div class="album-wrapper">
+          <div class="album">
+            <div class="info">
+              <h3>test</h3>
+              <a href="l?folder=budapest_homo_trip">
+                budapest_homo_trip
+              </a>
+            </div>
+            <img class="or or8" src="https://shoot.konst.fish/p?folder=deutschland_tabak_kaufen/shoot_frankfurt_hood&amp;image=IMG_0170.JPG&amp;size=250" alt="">
+            <img class="or or1" src="https://shoot.konst.fish/p?folder=deutschland_tabak_kaufen/shoot_frankfurt_hood&amp;image=IMG_0211.JPG&amp;size=250" alt="">
+            <img class="or or8" src="https://shoot.konst.fish/p?folder=deutschland_tabak_kaufen/shoot_frankfurt_hood&amp;image=IMG_0248.JPG&amp;size=250" alt="">
+          </div>
+          </div>
+  </div>
+
+
+  <script type="text/javascript">
+    function updZ(e, i){
+      //console.log("setting to " + i)
+      $(e).css("zIndex", i)
+    }
+
+    anim_albs = []
+
+    const animDelay = 500
+    const animDelay_l = 600
+
+    const dist = 220
+
+    $('.album').mouseenter(function(e){
+      console.log(anim_albs)
+      if(!anim_albs.includes($(this).attr('id'))){
+        anim_albs.push($(this).attr('id'))
+        console.log(anim_albs.includes($(this).attr('id')))
+
+        var c = $(this).children('img')
+        // 1
+
+        var tw1_r = KUTE.fromTo(
+          c[0],
+          {translate:[0,0], rotate: -4},
+          {translate:[dist,0], rotate: 8},
+          {easing: 'easingQuinticInOut', duration: animDelay},
+        );
+
+        var tw1_l = KUTE.fromTo(
+          c[0],
+          {translate:[dist,0], rotate: 8},
+          {translate:[0,0], rotate: -4},
+          {easing: 'easingQuinticInOut', duration: animDelay_l},
+        );
+
+      tw1_r.start();
+      setTimeout(function(){updZ(c[0], -1)}, animDelay)
+      tw1_r.chain(tw1_l);
+
+      //  2
+
+      var tw2_r = KUTE.fromTo(
+        c[1],
+        {translate:[0,0], rotate: 0},
+        {translate:[dist,0], rotate: -6},
+        {easing: 'easingQuinticInOut', duration: animDelay},
+      );
+
+      var tw2_l = KUTE.fromTo(
+        c[1],
+        {translate:[dist,0], rotate: -6},
+        {translate:[0,0], rotate: 0},
+        {easing: 'easingQuinticInOut', duration: animDelay_l},
+      );
+
+      tw1_l.chain(tw2_r);
+      setTimeout(function(){updZ(c[1], -2)}, animDelay * 3 + 100)
+      tw2_r.chain(tw2_l);
+
+      //  3
+
+      var tw3_r = KUTE.fromTo(
+        c[2],
+        {translate:[0,0], rotate: 4},
+        {translate:[dist,0], rotate: 8},
+        {easing: 'easingQuinticInOut', duration: animDelay},
+      );
+
+      var tw3_l = KUTE.fromTo(
+        c[2],
+        {translate:[dist,0], rotate: 8},
+        {translate:[0,0], rotate: 4},
+        {easing: 'easingQuinticInOut', duration: animDelay_l},
+      );
+
+      tw2_l.chain(tw3_r);
+      setTimeout(function(){updZ(c[0], 3); updZ(c[1], 2); }, animDelay * 5 + 200)
+      tw3_r.chain(tw3_l);
+
+      setTimeout(function(){ anim_albs.splice(anim_albs.indexOf($(this).attr('id')), 1); }, animDelay * 6 + 300)
+    }
+    })
+  </script>
+</body>
+</html>

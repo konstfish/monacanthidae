@@ -1,6 +1,9 @@
 const express = require('express');
+const session = require('express-session');
 const { config, engine } = require('express-edge');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+
 const path = require('path');
 const fs = require('fs');
 const dirTree = require('directory-tree');
@@ -10,13 +13,17 @@ const imgproc = require('./models/imageProc');
 var Albums = require('./models/Albums');
 const app = new express();
 
+mongoose.promise = global.Promise;
+
+const isProduction = process.env.NODE_ENV === 'production';
+
 app.use(express.static('public'));
 app.use(engine);
 app.set('views', __dirname + '/views');
 app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({
-    extended: true
-}));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(session({ secret: 'monacanthidae-s', cookie: { maxAge: 60000 }, resave: false, saveUninitialized: false }));
+
 
 app.set('json spaces', 2);
 
@@ -25,6 +32,8 @@ app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   next();
 });
+mongoose.connect('mongodb://localhost/monacanthidae-be', { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.set('debug', true);
 
 if(process.env.IN_DOCKER_CONTAINER){
   var rootdir = '/data/'
@@ -82,6 +91,10 @@ app.get('/t', function(req, res){
   res.send("t")
 });
 
+if(isProduction){
+  console.log("🚧 starting in production")
+}
+
 app.listen(3000, function(){
-  console.log('listening on *:3000');
+  console.log('✨ listening on *:3000');
 });

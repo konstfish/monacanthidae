@@ -72,15 +72,17 @@ module.exports = {
     for(var i = 0; i < t.length; i++){
       //console.log(t[i]["path"].replace(rootdir, ""))
       var pth = t[i]["path"].replace(rootdir, "")
-      var lstImgRe = listImgRed(pth)
-      if(lstImgRe.length != 0){
-        var obj = {
-          name: t[i]["name"],
-          path: pth,
-          prev_imgs: lstImgRe,
-          parent: p
+      if(isFolder(pth)){
+        var lstImgRe = listImgRed(pth)
+        if(lstImgRe.length != 0){
+          var obj = {
+            name: t[i]["name"],
+            path: pth,
+            prev_imgs: lstImgRe,
+            parent: p
+          }
+          arr.push(obj)
         }
-        arr.push(obj)
       }
       if(t[i]["children"].length > 0){
         var test = []

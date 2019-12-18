@@ -3,3 +3,4 @@ data/*
 tests
 .DS_Store
 ._*
+tmp
