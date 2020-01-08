@@ -1,57 +1,25 @@
 @layout('layouts.app')
 
 @section('content')
-  {{ folder }}
-  <div class="image-container">
+  <h4>{{ folder }}</h4>
+  <div class="grid">
     @each(image in images)
       <div class="image">
-        <div class="image-info">
-          <ul>
-            @if(image.camera)
-              <li>Camera: {{ image.camera }}</li>
-            @endif
-
-            @if(image.make)
-              <li>Manufacturer: {{ image.make }}</li>
-            @endif
-
-            @if(image.lensmodel)
-              <li>Lens: {{ image.lensmodel }}</li>
-            @endif
-
-            @if(image.iso)
-              <li>ISO: {{ image.iso }}</li>
-            @endif
-
-            @if(image.fnumber)
-              <li>f/{{ image.fnumber }}</li>
-            @endif
-
-            @if(image.focallength)
-              <li>Focal Length: {{ image.focallength }}</li>
-            @endif
-
-            @if(image.cr2)
-              <li><p onclick="/dl/?folder={{ folder }}&image={{ image.cr2 }}">CR2 Download</p></li>
-            @endif
-          </ul>
-        </div>
-        <a href="/f/?folder={{ folder }}&image={{ image.file }}">
           <img class="lazy" src="/p?folder={{ folder }}&image={{ image.file }}&size=20" data-src="p?folder={{ folder }}&image={{ image.file }}&size=600">
-          <br>
-          <span class="img_desc">{{ image.file }}</span>
-          <span class="img_sz">{{ image.width }}x{{ image.heigth }}</span>
-          <span class="img_upd">{{ image.upd }}</span>
-        </a>
-      </div>
+          <span class="info">
+            <a href="/f/?folder={{ folder }}&image={{ image.file }}">
+              <span class="img_desc">{{ image.file }} - {{ image.upd }}</span>
+              {{-- <span class="img_sz">{{ image.width }}x{{ image.heigth }}</span> --}}
+            </a>
+            @if(image.cr2)
+              | <a href="/dl/?folder={{ folder }}&image={{ image.cr2 }}"><span>CR2</span></a>
+            @endif
+          </span>
+        </div>
     @endeach
   </div>
 
   <script>
-  $(function() {
-    $('.lazy').Lazy();
-  });
-
   $(document).ready(function(){
     $('img').mouseenter(function(){
       $(this).css('opacity', '0.2')
@@ -61,6 +29,18 @@
     $('img').mouseleave(function(){
       $(this).css('opacity', '1')
       $(this).css('z-index', '10')
+    })
+
+    $('.lazy').Lazy();
+
+    var grid;
+    imagesLoaded($('.grid'), function(){
+      console.log("grid")
+      grid = $('.grid').masonry({
+        itemSelector: '.image',
+        //columnWidth: 312
+        fitWidth: true
+      });
     })
   })
   </script>
@@ -83,3 +63,38 @@
     upd: '2019-11-01 16:47:04',
     cr2: 0
   } --}}
+
+
+{{--
+<div class="image-info">
+  <ul>
+    @if(image.camera)
+      <li>Camera: {{ image.camera }}</li>
+    @endif
+
+    @if(image.make)
+      <li>Manufacturer: {{ image.make }}</li>
+    @endif
+
+    @if(image.lensmodel)
+      <li>Lens: {{ image.lensmodel }}</li>
+    @endif
+
+    @if(image.iso)
+      <li>ISO: {{ image.iso }}</li>
+    @endif
+
+    @if(image.fnumber)
+      <li>f/{{ image.fnumber }}</li>
+    @endif
+
+    @if(image.focallength)
+      <li>Focal Length: {{ image.focallength }}</li>
+    @endif
+
+    @if(image.cr2)
+      <li><p onclick="/dl/?folder={{ folder }}&image={{ image.cr2 }}">CR2 Download</p></li>
+    @endif
+  </ul>
+</div>
+ --}}
