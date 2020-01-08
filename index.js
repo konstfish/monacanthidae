@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 
 const path = require('path');
 const fs = require('fs');
+const chokidar = require('chokidar');
 const dirTree = require('directory-tree');
 
 const tools = require('./models/tools');
@@ -17,7 +18,19 @@ if(process.env.IN_DOCKER_CONTAINER){
   var rootdir = path.join(__dirname + '/data/')
 }
 
-const Albums = tools.aquireChildren(dirTree(rootdir, { extensions: /\ / })["children"], "__root__");
+var Albums = tools.aquireChildren(dirTree(rootdir, { extensions: /\ / })["children"], "__root__");
+
+var watcher = chokidar.watch(rootdir, {
+                        ignored: /[\/\\]\./,
+                        persistent: true,
+                        usePolling: true,
+                        ignoreInitial: true,
+                        interval: 2000,
+                        binaryInterval: 2500
+                    });
+
+watcher
+  .on('addDir', function(path){console.log(path); Albums = tools.aquireChildren(dirTree(rootdir, { extensions: /\ / })["children"], "__root__");})
 
 const app = new express();
 
@@ -55,13 +68,17 @@ app.get('/l', function(req, res){
     resolve(tools.listImg(req.query.folder))
   });
 
-  prom.then(function(images){
-    folder = req.query.folder
-    res.render('lister', {
-      folder,
-      images
-    });
-  })
+  prom
+    .then(function(images){
+      folder = req.query.folder
+      res.render('lister', {
+        folder,
+        images
+      });
+    })
+    .catch(function(e){
+      res.send('404')
+    })
 });
 
 app.get('/s/', function(req, res){
@@ -74,16 +91,26 @@ app.get('/s/', function(req, res){
 
 app.get('/p/', function(req, res){
   res.contentType('image/jpeg');
-  // console.log(req.query.folder)
-  // console.log(req.query.image)
   imgproc.minFilePreview(req.query.image, path.join(rootdir,req.query.folder), req.query.size)
     .then( data => {res.send(data)} )
     .catch(err => res.send("404 file not found"));
 });
 
 app.get('/f/', function(req, res){
-  res.contentType('image/jpeg');
-  res.sendFile(path.join(path.join(rootdir,req.query.folder), req.query.image))
+  if(req.query.folder != undefined && req.query.image != undefined){
+    res.contentType('image/jpeg');
+    res.sendFile(path.join(path.join(rootdir,req.query.folder), req.query.image))
+  }else{
+    res.send('404')
+  }
+});
+
+app.get('/dl/', function(req, res){
+  if(req.query.folder != undefined && req.query.image != undefined){
+    res.download(path.join(path.join(rootdir,req.query.folder), req.query.image))
+  }else{
+    res.send('404')
+  }
 });
 
 if(isProduction){

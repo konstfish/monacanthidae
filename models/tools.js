@@ -69,11 +69,9 @@ module.exports = {
 
   aquireChildren: function(t, p){
     var arr = []
-    console.log(t)
     for(var i = 0; i < t.length; i++){
       //console.log(t[i]["path"].replace(rootdir, ""))
       var pth = t[i]["path"].replace(rootdir, "")
-      console.log(pth)
       if(t[i]["type"] == 'directory'){
         var lstImgRe = listImgRed(pth)
         if(lstImgRe.length != 0){

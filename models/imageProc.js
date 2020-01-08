@@ -48,7 +48,11 @@ module.exports = {
     dic["file"] = file
 
     dic["upd"] = getFileUpdatedDate(srcdir + '/' + file).toISOString().replace(/T/, ' ').replace(/\..+/, '')
-    dic["cr2"] = pathExists(srcdir + '/' + file.split('.').slice(0, -1).join('.') + '.CR2')
+    if(pathExists(srcdir + '/' + file.split('.').slice(0, -1).join('.') + '.CR2')){
+      dic["cr2"] = file.split('.').slice(0, -1).join('.') + '.CR2'
+    }else{
+      dic["cr2"] = 0
+    }
 
     // await sharp(srcdir + '/' + file)
     // .resize(size)
@@ -85,8 +89,12 @@ module.exports = {
     dic["file"] = file
 
     dic["upd"] = getFileUpdatedDate(srcdir + '/' + file).toISOString().replace(/T/, ' ').replace(/\..+/, '')
-    dic["cr2"] = pathExists(srcdir + '/' + file.split('.').slice(0, -1).join('.') + '.CR2')
-
+    if(pathExists(srcdir + '/' + file.split('.').slice(0, -1).join('.') + '.CR2')){
+      dic["cr2"] = file.split('.').slice(0, -1).join('.') + '.CR2'
+    }else{
+      dic["cr2"] = 0
+    }
+    
     // await sharp(srcdir + '/' + file)
     // .resize(size)
     // .rotate()
