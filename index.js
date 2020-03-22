@@ -71,6 +71,7 @@ app.get('/l', function(req, res){
   prom
     .then(function(images){
       folder = req.query.folder
+      print(images)
       res.render('lister', {
         folder,
         images
