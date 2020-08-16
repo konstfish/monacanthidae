@@ -2,7 +2,7 @@ const express = require('express');
 const session = require('express-session');
 const { config, engine } = require('express-edge');
 const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
+//const mongoose = require('mongoose');
 
 const path = require('path');
 const fs = require('fs');
@@ -34,7 +34,7 @@ watcher
 
 const app = new express();
 
-mongoose.promise = global.Promise;
+//mongoose.promise = global.Promise;
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -53,8 +53,8 @@ app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   next();
 });
-mongoose.connect('mongodb://localhost/monacanthidae-be', { useNewUrlParser: true, useUnifiedTopology: true });
-mongoose.set('debug', true);
+//mongoose.connect('mongodb://localhost/monacanthidae-be', { useNewUrlParser: true, useUnifiedTopology: true });
+//mongoose.set('debug', true);
 
 app.get('/', async (req, res) => {
     const albums = Albums
@@ -67,17 +67,16 @@ app.get('/l', function(req, res){
   var prom = new Promise(function(resolve, reject) {
     resolve(tools.listImg(req.query.folder))
   });
-
   prom
     .then(function(images){
       folder = req.query.folder
-      print(images)
       res.render('lister', {
         folder,
         images
       });
     })
     .catch(function(e){
+      console.log(e)
       res.send('404')
     })
 });
