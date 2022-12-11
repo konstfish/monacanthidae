@@ -15,7 +15,7 @@
     "chokidar": "^3.3.1",
     "directory-tree": "^2.2.4",
     "exif-parser": "^0.1.12",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "express-edge": "^2.0.1",
     "express-session": "^1.17.0",
     "minimist": "^1.2.5",
